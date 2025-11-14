@@ -1,51 +1,33 @@
 :root{
-  --bg:#fcfbff;
-  --card:#fff;
-  --ink:#222;
-  --accent:#5fb6ff;
-  --accent-2:#ff7fb6;
-  --cute-glow: rgba(95,182,255,0.18);
-  --meter-bg: #eee;
-  --meter-fill: linear-gradient(90deg,#6ee7b7,#66b3ff);
-  --radius:12px;
-  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  --bg-plant:#07120a; --panel-plant:#05120b; --leaf:#bfffcf; --accent-plant:#b9ff8a;
+  --bg-fox:#07121b; --panel-fox:#081826; --accent-fox:#8fe6ff; --cute:#ffd9ec; --ok:#8ef78a;
+  --glass: rgba(255,255,255,0.03);
 }
-*{box-sizing:border-box}
-body{background:linear-gradient(180deg,#f7fbff,#eef6ff); color:var(--ink); margin:0; padding:24px}
-.container{max-width:980px;margin:0 auto}
-.page .topbar{margin-bottom:16px}
-.title{font-size:28px;margin:6px 0}
-.subtitle{color:#445; margin:0 0 12px 0}
-.card{background:var(--card); border-radius:var(--radius); padding:16px; box-shadow:0 6px 20px rgba(50,60,80,0.06); margin-bottom:12px}
-.row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:14px}
-.btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--accent);color:white;text-decoration:none;cursor:pointer;border:none}
-.btn.alt{background:var(--accent-2)}
-.hint{font-size:13px;color:#556;margin-top:8px}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:12px}
-.organelle-card{padding:12px;border-radius:10px;background:linear-gradient(180deg,#fff,#f8fcff);box-shadow: 0 4px 12px rgba(90,120,140,0.06);display:flex;align-items:center;gap:8px}
-.organelle-card .info{flex:1}
-.organelle-card h4{margin:0 0 6px 0}
-.organelle-card p{margin:0;color:#556;font-size:13px}
-.small-btn{padding:6px 8px;border-radius:8px;background:#e6f7ff;color:#044}
-.adaptation-meter{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
-.meter-track{width:240px;height:14px;background:var(--meter-bg);border-radius:99px;overflow:hidden}
-.meter-fill{height:100%;width:0%;background:linear-gradient(90deg,#7ee8fa,#b892ff);transition:width .6s;box-shadow:0 2px 8px rgba(120,120,255,0.12)}
-.canvas-wrap{display:flex;justify-content:center;align-items:center}
-.modal{position:fixed;left:0;top:0;right:0;bottom:0;background:rgba(1,4,8,0.45);display:flex;align-items:center;justify-content:center}
-.modal-content{background:white;padding:18px;border-radius:10px;max-width:90%;width:560px}
-.hidden{display:none}
 
-/* cute tiny organelle icons (simple circles) */
-.organelle-icon{width:72px;height:72px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;color:#123}
-.icon-nucleus{background:linear-gradient(180deg,#ffd9e8,#fff0f8);box-shadow:0 6px 18px rgba(255,115,170,0.12)}
-.icon-mito{background:linear-gradient(180deg,#fff3d6,#fff3d6);box-shadow:0 6px 18px rgba(255,170,60,0.08)}
-.icon-chloro{background:linear-gradient(180deg,#e6fff0,#f0fff8);box-shadow:0 6px 18px rgba(90,220,140,0.08)}
-
-/* adaptation "evolve" visual */
-.cell-evolved { box-shadow:0 0 40px rgba(120,200,180,0.18); transform:scale(1.02); transition:transform .45s;}
-
-/* small responsive */
-@media (max-width:640px){
-  .grid{grid-template-columns:1fr}
-  .meter-track{width:160px}
+body{
+  margin:0;
+  font-family:Inter,system-ui,Segoe UI,Roboto;
+  background:linear-gradient(180deg,#031415,#02100a 80%);
+  color:#eef;
 }
+
+.wrap{max-width:1100px;margin:18px auto;padding:18px;}
+header{display:flex;gap:14px;align-items:center}
+.logo{
+  width:64px;height:64px;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-weight:800;
+}
+h1{margin:0}
+.row{display:flex;gap:18px;flex-wrap:wrap}
+.panel{padding:12px;border-radius:12px;background:rgba(255,255,255,0.02)}
+.left{flex:1 1 360px} .right{flex:1 1 620px}
+input[type=text]{width:100%;padding:10px;border-radius:8px;border:none;background:rgba(255,255,255,0.02); color:#eef}
+.org-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.org-btn{padding:8px 10px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); cursor:pointer;border:1px solid rgba(255,255,255,0.03); color:#dff}
+canvas{display:block;margin:12px auto;background:transparent;border-radius:8px}
+.meter{height:18px;background:rgba(255,255,255,0.04);border-radius:10px;overflow:hidden}
+.meter-fill{height:100%;width:0%;background:linear-gradient(90deg,#c6ffb3,#7ef78a);transition:width 600ms ease}
+.game-area{margin-top:12px;padding:12px;border-radius:10px;background:rgba(255,255,255,0.01)}
+.hint{font-size:13px;color:#cfe}
+#cell-visual{width:100%;height:180px;border-radius:12px;position:relative;overflow:hidden}
+.particle{position:absolute;border-radius:50%;}
