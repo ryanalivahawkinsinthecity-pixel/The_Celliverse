@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Celliverse — Arctic Fox Cell</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<main class="page container">
+  <header class="topbar">
+    <h1 class="title">Arctic Fox Cell — Animal Adaptation</h1>
+    <p class="subtitle">Adaptation focus: surviving cold — insulation, metabolism, fat storage, and membrane fluidity.</p>
+  </header>
+
+  <section class="status card">
+    <div class="meta">
+      <strong id="playerLabel">Explorer</strong>
+      <div class="adaptation-meter">
+        <div class="meter-track"><div id="globalMeter" class="meter-fill"></div></div>
+        <small id="meterText">Adaptation: 0%</small>
+      </div>
+    </div>
+  </section>
+
+  <section class="organelles card">
+    <h3>Organelles of Power — Animal Cell</h3>
+    <p class="hint">Complete each mini-game to earn adaptation points. Points reflect how that organelle helps Arctic Fox cells handle the cold.</p>
+
+    <div id="organelleGrid" class="grid">
+      <!-- 10 organelles; script will populate -->
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>Cell Visualization</h3>
+    <canvas id="cellCanvas" width="560" height="360"></canvas>
+    <p class="hint">Watch the cell change visually as you adapt it. When adaptation hits 100%, witness the Arctic Fox cell transformation.</p>
+  </section>
+
+  <div class="row">
+    <a class="btn" id="backHub">Back to Hub</a>
+    <a class="btn alt" id="missionLog">Show Mission Log</a>
+  </div>
+
+  <div id="logModal" class="modal hidden">
+    <div class="modal-content">
+      <h4>Mission Log</h4>
+      <pre id="logText"></pre>
+      <button class="btn" onclick="closeLog()">Close</button>
+    </div>
+  </div>
+</main>
+
+<script src="script.js"></script>
+<script>
+  // start animal mission
+  const player = localStorage.getItem('celliverse_player') || 'Explorer';
+  document.getElementById('playerLabel').innerText = player;
+
+  // Organelles for animal cell with adaptation roles (Arctic fox)
+  const animalOrganelles = [
+    {id:'nucleus', label:'Nucleus', points:10, desc:'Controls gene expression for cold-adapted fur and metabolism.'},
+    {id:'mito', label:'Mitochondria', points:12, desc:'Boosts metabolism to produce more heat.'},
+    {id:'rib', label:'Ribosomes', points:8, desc:'Synthesizes proteins like insulating keratin.'},
+    {id:'er', label:'Endoplasmic Reticulum', points:7, desc:'Processes lipids and proteins for insulation.'},
+    {id:'golgi', label:'Golgi', points:6, desc:'Packages signaling molecules for metabolism control.'},
+    {id:'lys', label:'Lysosomes', points:5, desc:'Removes damaged components under stress.'},
+    {id:'vac', label:'Vacuole-Like Vesicles', points:6, desc:'Stores lipids for rapid energy.'},
+    {id:'mem', label:'Cell Membrane', points:14, desc:'Adjusts membrane fluidity to remain functional in cold.'},
+    {id:'cyto', label:'Cytoskeleton', points:8, desc:'Maintains shape and organelle positioning.'},
+    {id:'perox', label:'Peroxisomes', points:14, desc:'Detox and lipid metabolism — key for cold energy.'}
+  ];
+
+  // initialize animal page
+  initMission('animal', animalOrganelles, {
+    environment: 'cold',
+    visuals: {palette:'cute-warm', animal:'arctic-fox'}
+  });
+
+  // nav
+  document.getElementById('backHub').onclick = () => location.href = 'index.html';
+  document.getElementById('missionLog').onclick = showLog;
+</script>
+</body>
+</html>
