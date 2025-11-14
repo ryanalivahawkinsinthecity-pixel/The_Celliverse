@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Arctic Fox Cell Survival</title>
+<style>
+    body {
+        background: #dff3ff;
+        font-family: Arial, sans-serif;
+        text-align: center;
+    }
+
+    h1 {
+        font-size: 32px;
+        margin-top: 20px;
+    }
+
+    #gameArea {
+        width: 500px;
+        height: 500px;
+        margin: 20px auto;
+        background: #ffffff;
+        border-radius: 50%;
+        border: 6px solid #7ec8ff;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 0 20px #7ec8ff;
+    }
+
+    .organelle {
+        position: absolute;
+        padding: 10px 15px;
+        background: #fff;
+        border-radius: 20px;
+        border: 2px solid #7ec8ff;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    #stats {
+        font-size: 20px;
+        margin-top: 10px;
+    }
+
+    #log {
+        height: 120px;
+        width: 500px;
+        overflow-y: auto;
+        background: #fff;
+        margin: 20px auto;
+        border: 2px solid #7ec8ff;
+        padding: 10px;
+        border-radius: 10px;
+        text-align: left;
+    }
+
+    #winMessage, #loseMessage {
+        display: none;
+        font-size: 28px;
+        font-weight: bold;
+        padding: 20px;
+        margin-top: 30px;
+    }
+
+    #winMessage { color: green; }
+    #loseMessage { color: red; }
+</style>
+</head>
+<body>
+
+<h1>❄️ Arctic Fox Cell Survival Mini-Game</h1>
+
+<div id="stats">
+    Temperature: <span id="temp">0</span>°C  
+    | Cell Heat: <span id="heat">5</span>
+</div>
+
+<div id="gameArea">
+
+    <div class="organelle" style="top:40%; left:10%;" onclick="useMito()">
+        Mitochondria
+    </div>
+    <div class="organelle" style="top:10%; left:40%;" onclick="useMembrane()">
+        Cell Membrane
+    </div>
+    <div class="organelle" style="top:70%; left:40%;" onclick="useLysosome()">
+        Lysosomes
+    </div>
+    <div class="organelle" style="top:40%; left:70%;" onclick="useNucleus()">
+        Nucleus
+    </div>
+    <div class="organelle" style="top:20%; left:70%;" onclick="useRibosomes()">
+        Ribosomes
+    </div>
+
+</div>
+
+<div id="log"></div>
+
+<div id="winMessage">⭐ You survived the Arctic! The cell adapted successfully.</div>
+<div id="loseMessage">💀 The cell froze. Adaptation failed.</div>
+
+<script>
+let temperature = -25;
+let heat = 5;
+
+document.getElementById("temp").textContent = temperature;
+
+function log(msg) {
+    const logBox = document.getElementById("log");
+    logBox.innerHTML += "• " + msg + "<br>";
+    logBox.scrollTop = logBox.scrollHeight;
+}
+
+function update() {
+    temperature -= 1;  // Arctic is getting colder
+    heat -= 1;         // Cell loses heat over time
+
+    document.getElementById("temp").textContent = temperature;
+    document.getElementById("heat").textContent = heat;
+
+    if (heat >= 15) {
+        win();
+    }
+
+    if (heat <= 0) {
+        lose();
+    }
+}
+
+function useMito() {
+    heat += 3;
+    log("Mitochondria boosted ATP → +3 heat.");
+}
+
+function useMembrane() {
+    heat += 2;
+    log("Membrane thickened with lipids → better insulation.");
+}
+
+function useLysosome() {
+    heat += 1;
+    log("Lysosomes cleared frost damage → small heat restore.");
+}
+
+function useNucleus() {
+    heat += 4;
+    log("Nucleus activated adaptive genes → big heat boost.");
+}
+
+function useRibosomes() {
+    heat += 2;
+    log("Ribosomes made cold-resistant proteins → +2 heat.");
+}
+
+let gameLoop = setInterval(update, 2000);
+
+function win() {
+    clearInterval(gameLoop);
+    document.getElementById("winMessage").style.display = "block";
+}
+
+function lose() {
+    clearInterval(gameLoop);
+    document.getElementById("loseMessage").style.display = "block";
+}
+</script>
+
+</body>
+</html>
