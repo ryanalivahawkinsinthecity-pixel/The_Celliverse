@@ -1,170 +1,662 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Arctic Fox Cell Survival</title>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Celliverse — Arctic Fox Cell</title>
 <style>
-    body {
-        background: #dff3ff;
-        font-family: Arial, sans-serif;
-        text-align: center;
-    }
-
-    h1 {
-        font-size: 32px;
-        margin-top: 20px;
-    }
-
-    #gameArea {
-        width: 500px;
-        height: 500px;
-        margin: 20px auto;
-        background: #ffffff;
-        border-radius: 50%;
-        border: 6px solid #7ec8ff;
-        position: relative;
-        overflow: hidden;
-        box-shadow: 0 0 20px #7ec8ff;
-    }
-
-    .organelle {
-        position: absolute;
-        padding: 10px 15px;
-        background: #fff;
-        border-radius: 20px;
-        border: 2px solid #7ec8ff;
-        cursor: pointer;
-        font-size: 14px;
-    }
-
-    #stats {
-        font-size: 20px;
-        margin-top: 10px;
-    }
-
-    #log {
-        height: 120px;
-        width: 500px;
-        overflow-y: auto;
-        background: #fff;
-        margin: 20px auto;
-        border: 2px solid #7ec8ff;
-        padding: 10px;
-        border-radius: 10px;
-        text-align: left;
-    }
-
-    #winMessage, #loseMessage {
-        display: none;
-        font-size: 28px;
-        font-weight: bold;
-        padding: 20px;
-        margin-top: 30px;
-    }
-
-    #winMessage { color: green; }
-    #loseMessage { color: red; }
+  :root{
+    --bg:#07121b; --panel:#081826; --accent:#8fe6ff; --cute:#ffd9ec; --ok:#8ef78a;
+    --glass: rgba(255,255,255,0.03);
+  }
+  body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto; background:linear-gradient(180deg,#042, #00121a 80%); color:#eaf7ff;}
+  .wrap{max-width:1100px;margin:18px auto;padding:18px;}
+  header{display:flex;align-items:center;gap:14px}
+  .logo{width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,#cfeeff,#c2ffd9);display:flex;align-items:center;justify-content:center;color:#012;font-weight:800}
+  h1{margin:0;font-size:22px}
+  .row{display:flex;gap:18px;margin-top:16px;flex-wrap:wrap}
+  .panel{background:var(--panel);padding:14px;border-radius:12px; box-shadow: 0 8px 24px rgba(0,0,0,0.6)}
+  .left{flex:1 1 360px}
+  .right{flex:1 1 420px}
+  label{font-size:13px;color:#abf}
+  input[type=text]{width:100%;padding:10px;margin-top:8px;border-radius:8px;border:none;background:rgba(255,255,255,0.02); color:#eaf7ff}
+  .org-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+  .org-btn{padding:8px 10px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); cursor:pointer;border:1px solid rgba(255,255,255,0.03); color:#dff}
+  .org-btn.locked{opacity:0.5}
+  canvas{display:block;margin:12px auto;background:transparent;border-radius:8px}
+  .meter-wrap{background:rgba(255,255,255,0.03);padding:10px;border-radius:8px}
+  .meter{height:18px;background:rgba(255,255,255,0.06);border-radius:10px;overflow:hidden}
+  .meter-fill{height:100%;width:0%;background:linear-gradient(90deg,#b9f6ff,#8ef78a);transition:width 600ms ease}
+  .status{margin-top:8px;color:#cfe}
+  .mini{font-size:13px;color:#bfe;margin-top:6px}
+  .game-area{margin-top:12px;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent); padding:12px;border-radius:10px}
+  .legend{font-size:13px;color:#9ff}
+  #mission-log{white-space:pre-wrap;color:#dff;margin-top:12px;background:rgba(255,255,255,0.02);padding:10px;border-radius:8px}
+  .finish{background:linear-gradient(90deg,#c2ffd9,#ffd9f0);color:#031;padding:8px;border-radius:10px;text-decoration:none;font-weight:700}
+  .back{display:inline-block;margin-top:12px;color:#9fe;text-decoration:none}
+  .org-title{font-weight:700}
+  .hint{font-size:13px;color:#bde;margin-top:8px}
+  .row2{display:flex;gap:12px;flex-wrap:wrap;margin-top:10px}
+  .smallbtn{padding:6px 8px;border-radius:8px;border:none;background:#0b2a3a;color:#cfe;cursor:pointer}
+  /* cute organelle icons */
+  .icon{display:inline-block;width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,#fff7,#fffb);margin-right:8px;vertical-align:middle}
+  .done{filter:drop-shadow(0 6px 16px rgba(120,240,200,0.12))}
+  /* evolution visual */
+  #cell-visual{width:100%;height:220px;border-radius:12px;background: radial-gradient(circle at 30% 30%, rgba(160,230,255,0.08), rgba(15,35,45,0.4)), linear-gradient(180deg, rgba(255,255,255,0.02), transparent); position:relative; overflow:hidden}
+  .particle{position:absolute;border-radius:50%;opacity:0.9}
+  .glow{position:absolute;border-radius:50%;filter:blur(18px);opacity:0.9}
 </style>
 </head>
 <body>
+  <div class="wrap">
+    <header>
+      <div class="logo">AF</div>
+      <div>
+        <h1>Celliverse — Arctic Fox Cell</h1>
+        <div class="legend">Cute, realistic organelle visuals + meaningful adaptation simulations for Arctic survival.</div>
+      </div>
+    </header>
 
-<h1>❄️ Arctic Fox Cell Survival Mini-Game</h1>
+    <div class="row">
+      <div class="panel left">
+        <label>Explorer Codename</label>
+        <input id="player" placeholder="Type your codename (e.g., Nova)">
 
-<div id="stats">
-    Temperature: <span id="temp">0</span>°C  
-    | Cell Heat: <span id="heat">5</span>
-</div>
+        <div class="meter-wrap" style="margin-top:12px">
+          <div style="display:flex;justify-content:space-between">
+            <div class="legend">Adaptation Progress</div>
+            <div id="meter-percent">0%</div>
+          </div>
+          <div class="meter" style="margin-top:8px"><div id="meter-fill" class="meter-fill"></div></div>
+          <div class="status" id="adapt-desc">Complete organelle games to increase cold resistance.</div>
+        </div>
 
-<div id="gameArea">
+        <div class="hint">Organelles (click to open games). Finish all 10 to trigger adaptation transformation.</div>
+        <div class="org-list" id="org-list">
+          <!-- JS will populate buttons -->
+        </div>
 
-    <div class="organelle" style="top:40%; left:10%;" onclick="useMito()">
-        Mitochondria
+        <div class="mini">Tip: Each organelle game gives a specific adaptation boost. Strategy matters—some organelles give insulation, others energy or storage.</div>
+        <div style="margin-top:10px">
+          <button class="smallbtn" onclick="resetAll()">Reset Mission</button>
+          <a class="back" href="index.html">← Back to Hub</a>
+        </div>
+      </div>
+
+      <div class="panel right">
+        <div class="org-title" id="current-org">Select an organelle to begin</div>
+        <div class="game-area">
+          <div id="org-desc" class="legend">Organelles have unique mini games. Complete the game, click <b>Adapt</b> to apply changes.</div>
+          <div id="game-container">
+            <!-- game canvas / DOM appears here -->
+            <canvas id="game-canvas" width="420" height="180"></canvas>
+          </div>
+          <div class="row2">
+            <button id="adapt-btn" class="smallbtn" onclick="applyAdapt()" disabled>Adapt (apply change)</button>
+            <button id="open-btn" class="smallbtn" onclick="openOrg()" disabled>Open Game</button>
+            <div id="org-feedback" class="hint"></div>
+          </div>
+        </div>
+
+        <div id="cell-visual" style="margin-top:12px">
+          <!-- dynamic visual particles -->
+        </div>
+
+        <div id="mission-log" style="margin-top:12px">Mission log will appear here when you adapt organelles.</div>
+      </div>
     </div>
-    <div class="organelle" style="top:10%; left:40%;" onclick="useMembrane()">
-        Cell Membrane
-    </div>
-    <div class="organelle" style="top:70%; left:40%;" onclick="useLysosome()">
-        Lysosomes
-    </div>
-    <div class="organelle" style="top:40%; left:70%;" onclick="useNucleus()">
-        Nucleus
-    </div>
-    <div class="organelle" style="top:20%; left:70%;" onclick="useRibosomes()">
-        Ribosomes
-    </div>
-
-</div>
-
-<div id="log"></div>
-
-<div id="winMessage">⭐ You survived the Arctic! The cell adapted successfully.</div>
-<div id="loseMessage">💀 The cell froze. Adaptation failed.</div>
+  </div>
 
 <script>
-let temperature = -25;
-let heat = 5;
+/* ---- DATA ---- */
+const organelles = [
+  { id:'nucleus', title:'Nucleus', short:'Gene control', desc:'Match 3 DNA segments to activate gene expression. Boost: gene regulation (+12%)', boost:12, played:false },
+  { id:'mito', title:'Mitochondria', short:'Energy', desc:'Click the core rapidly to charge energy. Boost: energy output (+12%)', boost:12, played:false },
+  { id:'ribosome', title:'Ribosome', short:'Protein synth', desc:'Drag amino acids into chain in order. Boost: protein versatility (+10%)', boost:10, played:false },
+  { id:'er', title:'Endoplasmic Reticulum', short:'Transport', desc:'Route packets along the ER conveyor to the right exit. Boost: transport efficiency (+8%)', boost:8, played:false },
+  { id:'golgi', title:'Golgi', short:'Packaging', desc:'Sort 4 molecules into correct bins. Boost: specialization (+8%)', boost:8, played:false },
+  { id:'lysosome', title:'Lysosome', short:'Waste cleanup', desc:'Click to pop waste bubbles before they overwhelm. Boost: detox (+10%)', boost:10, played:false },
+  { id:'vacuole', title:'Vacuole', short:'Storage', desc:'Catch falling nutrient droplets. Boost: storage (+10%)', boost:10, played:false },
+  { id:'membrane', title:'Cell Membrane', short:'Barrier', desc:'Slide shield to block incoming toxins. Boost: protection (+10%)', boost:10, played:false },
+  { id:'cytoskel', title:'Cytoskeleton', short:'Structure', desc:'Connect the nodes so the frame stays stable. Boost: mobility/resilience (+10%)', boost:10, played:false },
+  { id:'perox', title:'Peroxisome', short:'Oxidative defense', desc:'Balance reactive particle levels. Boost: oxidative resistance (+10%)', boost:10, played:false }
+];
 
-document.getElementById("temp").textContent = temperature;
+let playerName = '';
+let adaptation = 0;
+const adaptationTarget = 100;
+let current = null;
+let gameState = {}; // per organelle game data
 
-function log(msg) {
-    const logBox = document.getElementById("log");
-    logBox.innerHTML += "• " + msg + "<br>";
-    logBox.scrollTop = logBox.scrollHeight;
+/* ---- UI references ---- */
+const orgList = document.getElementById('org-list');
+const currentOrg = document.getElementById('current-org');
+const orgDesc = document.getElementById('org-desc');
+const openBtn = document.getElementById('open-btn');
+const adaptBtn = document.getElementById('adapt-btn');
+const feedback = document.getElementById('org-feedback');
+const meterFill = document.getElementById('meter-fill');
+const meterPercent = document.getElementById('meter-percent');
+const missionLog = document.getElementById('mission-log');
+const canvas = document.getElementById('game-canvas');
+const ctx = canvas.getContext('2d');
+const cellVisual = document.getElementById('cell-visual');
+
+/* ---- init UI ---- */
+function buildList(){
+  orgList.innerHTML='';
+  organelles.forEach((o, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'org-btn';
+    btn.id = 'btn-'+o.id;
+    btn.innerHTML = `<span class="icon"></span><strong>${o.title}</strong><div style="font-size:12px;color:#9ff">${o.short}</div>`;
+    btn.onclick = ()=>selectOrg(i);
+    if(o.played) btn.classList.add('done');
+    orgList.appendChild(btn);
+  });
+}
+buildList();
+
+/* ---- selection logic ---- */
+function selectOrg(i){
+  current = organelles[i];
+  currentOrg.innerText = current.title;
+  orgDesc.innerText = current.desc;
+  openBtn.disabled=false;
+  adaptBtn.disabled=true;
+  feedback.innerText = 'Open the mini-game to play.';
+  playerName = document.getElementById('player').value.trim();
 }
 
-function update() {
-    temperature -= 1;  // Arctic is getting colder
-    heat -= 1;         // Cell loses heat over time
+/* ---- open games (each organelle has own game) ---- */
+function openOrg(){
+  if(!current) return;
+  feedback.innerText = '';
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // small dispatcher
+  switch(current.id){
+    case 'nucleus': gameDNA(); break;
+    case 'mito': gameMito(); break;
+    case 'ribosome': gameRibo(); break;
+    case 'er': gameER(); break;
+    case 'golgi': gameGolgi(); break;
+    case 'lysosome': gameLys(); break;
+    case 'vacuole': gameVacuole(); break;
+    case 'membrane': gameMembrane(); break;
+    case 'cytoskel': gameCytoskel(); break;
+    case 'perox': gamePerox(); break;
+    default: ctx.fillText('Game not ready',20,20);
+  }
+}
 
-    document.getElementById("temp").textContent = temperature;
-    document.getElementById("heat").textContent = heat;
+/* ---- utilities ---- */
+function enableAdapt(){
+  adaptBtn.disabled = false;
+  feedback.innerText = 'Game complete! Click Adapt to apply the change to the cell.';
+}
 
-    if (heat >= 15) {
-        win();
+/* ---- game 1: Nucleus (match DNA segments) ---- */
+function gameDNA(){
+  // simple matching pairs: click two identical segments in a grid
+  const segments = ['ATG','CGA','TTA','GGC','ATG','CGA','TTA','GGC'];
+  shuffle(segments);
+  gameState.nucleus = { cards:segments, open:[], matched:[] };
+  drawDNA();
+  canvas.onclick = (e)=>{
+    const x = e.offsetX, y = e.offsetY;
+    // 4x2 grid: card width 95, height 70, gap 8
+    const cols=4, rows=2, w=95,h=70,g=8, startX=10, startY=10;
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        const idx=r*cols+c;
+        const cx=startX+c*(w+g), cy=startY+r*(h+g);
+        if(x>cx && x<cx+w && y>cy && y<cy+h && !gameState.nucleus.matched.includes(idx)){
+          if(!gameState.nucleus.open.includes(idx)){
+            gameState.nucleus.open.push(idx);
+            if(gameState.nucleus.open.length===2){
+              // compare
+              const [a,b]=gameState.nucleus.open;
+              if(gameState.nucleus.cards[a]===gameState.nucleus.cards[b]){
+                gameState.nucleus.matched.push(a,b);
+                gameState.nucleus.open=[];
+                if(gameState.nucleus.matched.length===8) enableAdapt();
+              } else {
+                // temporarily show then hide
+                const openCopy=[...gameState.nucleus.open];
+                setTimeout(()=>{ gameState.nucleus.open=[]; drawDNA();},700);
+              }
+            }
+          }
+          drawDNA();
+        }
+      }
     }
-
-    if (heat <= 0) {
-        lose();
+  };
+  function drawDNA(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.font='16px Inter';
+    for(let r=0;r<2;r++){
+      for(let c=0;c<4;c++){
+        const idx=r*4+c;
+        const cx=10+c*(95+8), cy=10+r*(70+8);
+        // box
+        ctx.fillStyle='#051a22'; ctx.fillRect(cx,cy,95,70);
+        ctx.strokeStyle='#0fb'; ctx.strokeRect(cx+2,cy+2,91,66);
+        if(gameState.nucleus.matched.includes(idx) || gameState.nucleus.open.includes(idx)){
+          ctx.fillStyle='#bff'; ctx.fillText(gameState.nucleus.cards[idx], cx+18, cy+40);
+        } else {
+          ctx.fillStyle='#044'; ctx.fillRect(cx+10,cy+14,75,40);
+        }
+      }
     }
+  }
 }
 
-function useMito() {
-    heat += 3;
-    log("Mitochondria boosted ATP → +3 heat.");
+/* ---- game 2: Mitochondria (click to charge energy) ---- */
+function gameMito(){
+  gameState.mito = { energy:0, target:100, last:0 };
+  drawMito();
+  canvas.onclick = ()=>{ if(gameState.mito.energy<gameState.mito.target){ gameState.mito.energy += 10 + Math.floor(Math.random()*8); if(gameState.mito.energy>100) gameState.mito.energy=100; drawMito(); if(gameState.mito.energy>=100) enableAdapt(); } };
+  function drawMito(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    // mitochondria core
+    const cx=210, cy=90;
+    // outer oval
+    ctx.beginPath(); ctx.ellipse(cx,cy,110,60,0,0,Math.PI*2); ctx.fillStyle='#08323b'; ctx.fill();
+    // energy arcs
+    let pct = gameState.mito.energy/100;
+    for(let i=0;i<8;i++){
+      const alpha = (i<Math.floor(pct*8))?0.9:0.12;
+      ctx.beginPath(); ctx.ellipse(cx,cy,80 - i*8,44 - i*4,0,0,Math.PI*2); ctx.strokeStyle=`rgba(140,255,220,${alpha})`; ctx.lineWidth=4; ctx.stroke();
+    }
+    // center
+    ctx.beginPath(); ctx.arc(cx,cy,26,0,Math.PI*2); ctx.fillStyle='#7fffd4'; ctx.fill();
+    ctx.fillStyle='#002'; ctx.font='16px Inter'; ctx.fillText('Energy: '+Math.min(100,Math.round(gameState.mito.energy))+'%',170,170);
+  }
 }
 
-function useMembrane() {
-    heat += 2;
-    log("Membrane thickened with lipids → better insulation.");
+/* ---- game 3: Ribosome (drag amino acids into chain in order) ---- */
+function gameRibo(){
+  gameState.ribo = { acids:['A','R','G','L'], placed:[], drag:null };
+  // initial positions
+  gameState.ribo.pos = gameState.ribo.acids.map((a,i)=>({x:20 + i*90, y:120, w:60, h:40, letter:a}));
+  drawRibo();
+  canvas.onmousedown = (e)=>{
+    const x=e.offsetX,y=e.offsetY;
+    for(let i=0;i<gameState.ribo.pos.length;i++){
+      const p=gameState.ribo.pos[i];
+      if(x>p.x && x<p.x+p.w && y>p.y && y<p.y+p.h){
+        gameState.ribo.drag = {i, offsetX:x-p.x, offsetY:y-p.y};
+      }
+    }
+  };
+  canvas.onmousemove = (e)=>{
+    if(gameState.ribo.drag){
+      const d = gameState.ribo.drag;
+      gameState.ribo.pos[d.i].x = e.offsetX - d.offsetX;
+      gameState.ribo.pos[d.i].y = e.offsetY - d.offsetY;
+      drawRibo();
+    }
+  };
+  canvas.onmouseup = (e)=>{
+    if(!gameState.ribo.drag) return;
+    // if dropped to chain area (x between 200-360)
+    const d=gameState.ribo.drag; const p=gameState.ribo.pos[d.i];
+    if(p.x>200 && p.x<360){
+      // place at next spot
+      gameState.ribo.placed.push(p.letter);
+      gameState.ribo.pos.splice(d.i,1);
+      if(gameState.ribo.placed.length===4) enableAdapt();
+    }
+    gameState.ribo.drag=null; drawRibo();
+  };
+  function drawRibo(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#cfe'; ctx.font='14px Inter'; ctx.fillText('Drag amino acids into chain area (right) in any order to complete protein',10,20);
+    // draw available
+    for(const p of gameState.ribo.pos){
+      ctx.fillStyle='#073'; ctx.fillRect(p.x,p.y,p.w,p.h);
+      ctx.fillStyle='#dff'; ctx.fillText(p.letter, p.x+20, p.y+26);
+    }
+    // chain area
+    ctx.strokeStyle='#0af'; ctx.strokeRect(200,60,160,100);
+    ctx.fillStyle='#fff'; ctx.fillText('Protein chain: '+gameState.ribo.placed.join('-'),210,90);
+  }
 }
 
-function useLysosome() {
-    heat += 1;
-    log("Lysosomes cleared frost damage → small heat restore.");
+/* ---- game 4: ER (conveyor) ---- */
+function gameER(){
+  gameState.er = { packets:[], time:0, score:0 };
+  // create packets with targets left/right
+  for(let i=0;i<5;i++){
+    gameState.er.packets.push({x:-30 - i*90, y:40 + (i%2)*60, target: (i%2===0)?'left':'right', speed:1.2 + Math.random()*0.8});
+  }
+  function loopER(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#cff'; ctx.font='14px Inter'; ctx.fillText('Click packet as it passes the correct exit (left/right). Get 6 correct to finish.',10,18);
+    // draw exits
+    ctx.fillStyle='#022'; ctx.fillRect(5,30,40,120);
+    ctx.fillStyle='#022'; ctx.fillRect(375,30,40,120);
+    ctx.fillStyle='#0ff'; ctx.fillText('LEFT',10,26);
+    ctx.fillText('RIGHT',360,26);
+    gameState.er.packets.forEach((p,i)=>{
+      p.x += p.speed;
+      if(p.x>420) p.x = -50;
+      // draw packet
+      ctx.fillStyle = (p.target==='left')? '#aef': '#ffd9d9';
+      ctx.fillRect(p.x,p.y,36,24);
+    });
+    gameState.er.time++;
+    animationFrameId = requestAnimationFrame(loopER);
+  }
+  let animationFrameId = requestAnimationFrame(loopER);
+  canvas.onclick = (e)=>{
+    const x=e.offsetX, y=e.offsetY;
+    // see if a packet near an exit clicked
+    for(const p of gameState.er.packets){
+      if(x>p.x && x<p.x+36 && y>p.y && y<p.y+24){
+        // check if near correct exit x positions
+        if((p.target==='left' && p.x < 80) || (p.target==='right' && p.x > 280)){
+          gameState.er.score++;
+        } else {
+          gameState.er.score = Math.max(0, gameState.er.score-1);
+        }
+        if(gameState.er.score >= 6){
+          cancelAnimationFrame(animationFrameId);
+          enableAdapt();
+        }
+      }
+    }
+  };
 }
 
-function useNucleus() {
-    heat += 4;
-    log("Nucleus activated adaptive genes → big heat boost.");
+/* ---- game 5: Golgi (sorting) ---- */
+function gameGolgi(){
+  gameState.golgi = { molecules:[
+    {x:20,y:20,type:'lipid'}, {x:120,y:20,type:'protein'}, {x:220,y:20,type:'sugar'}, {x:320,y:20,type:'protein'}
+  ], bins:[
+    {x:40,y:120,type:'lipid'}, {x:160,y:120,type:'protein'}, {x:280,y:120,type:'sugar'}
+  ], drag:null };
+  drawGolgi();
+  canvas.onmousedown = (e)=>{
+    for(const m of gameState.golgi.molecules){
+      if(e.offsetX>m.x && e.offsetX<m.x+60 && e.offsetY>m.y && e.offsetY<m.y+30){
+        gameState.golgi.drag = {m,ox:e.offsetX-m.x,oy:e.offsetY-m.y};
+      }
+    }
+  };
+  canvas.onmousemove = (e)=>{ if(gameState.golgi.drag){ gameState.golgi.drag.m.x = e.offsetX - gameState.golgi.drag.ox; gameState.golgi.drag.m.y = e.offsetY - gameState.golgi.drag.oy; drawGolgi(); } };
+  canvas.onmouseup = (e)=>{
+    if(gameState.golgi.drag){
+      // check bin collision
+      const m = gameState.golgi.drag.m;
+      for(const b of gameState.golgi.bins){
+        if(m.x+30 > b.x && m.x+30 < b.x+80 && m.y+15 > b.y && m.y+15 < b.y+60){
+          if(m.type === b.type){
+            // remove molecule
+            gameState.golgi.molecules = gameState.golgi.molecules.filter(x=>x!==m);
+            if(gameState.golgi.molecules.length===0) enableAdapt();
+          } else {
+            // bounce back
+            m.x = 20;
+            m.y = 20;
+          }
+        }
+      }
+      gameState.golgi.drag = null; drawGolgi();
+    }
+  };
+  function drawGolgi(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#cfe'; ctx.fillText('Drag molecules into matching bins',10,14);
+    for(const b of gameState.golgi.bins){
+      ctx.fillStyle='#022'; ctx.fillRect(b.x,b.y,80,60);
+      ctx.fillStyle='#9ff'; ctx.fillText(b.type, b.x+18, b.y+34);
+    }
+    for(const m of gameState.golgi.molecules){
+      ctx.fillStyle = (m.type==='protein')? '#ffd9d9' : (m.type==='lipid'? '#b8f' : '#8ff');
+      ctx.fillRect(m.x,m.y,60,30);
+      ctx.fillStyle='#012'; ctx.fillText(m.type, m.x+8, m.y+20);
+    }
+  }
 }
 
-function useRibosomes() {
-    heat += 2;
-    log("Ribosomes made cold-resistant proteins → +2 heat.");
+/* ---- game 6: Lysosome (click waste) ---- */
+function gameLys(){
+  gameState.lys = { bubbles:[], score:0 };
+  for(let i=0;i<8;i++){ gameState.lys.bubbles.push({x:20 + Math.random()*380, y:180 + Math.random()*-160, r:10+Math.random()*20, speed:0.6+Math.random()*0.6}); }
+  function loop(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#cfe'; ctx.fillText('Click harmful waste bubbles before they reach the cell core',10,14);
+    for(const b of gameState.lys.bubbles){
+      b.y += b.speed;
+      // draw
+      ctx.beginPath(); ctx.fillStyle='rgba(255,80,80,0.8)'; ctx.arc(b.x,b.y,b.r,0,Math.PI*2); ctx.fill();
+    }
+    animationFrameId = requestAnimationFrame(loop);
+  }
+  let animationFrameId = requestAnimationFrame(loop);
+  canvas.onclick = (e)=>{
+    for(let i=gameState.lys.bubbles.length-1;i>=0;i--){
+      const b = gameState.lys.bubbles[i];
+      const dx = e.offsetX - b.x, dy = e.offsetY - b.y;
+      if(Math.sqrt(dx*dx + dy*dy) < b.r){
+        // pop and award
+        gameState.lys.bubbles.splice(i,1);
+        gameState.lys.score++;
+        if(gameState.lys.score >= 6){
+          cancelAnimationFrame(animationFrameId); enableAdapt();
+        }
+      }
+    }
+  };
 }
 
-let gameLoop = setInterval(update, 2000);
-
-function win() {
-    clearInterval(gameLoop);
-    document.getElementById("winMessage").style.display = "block";
+/* ---- game 7: Vacuole (catch nutrients) ---- */
+function gameVacuole(){
+  gameState.vac = { bucketX:180, drops:[], score:0 };
+  for(let i=0;i<6;i++) gameState.vac.drops.push({x:10 + Math.random()*400, y: -Math.random()*300, speed:1.2 + Math.random()*1.6});
+  function loop(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#cfe'; ctx.fillText('Move the bucket with your mouse to catch nutrient droplets (5 catches).',10,14);
+    for(const d of gameState.vac.drops){
+      d.y += d.speed;
+      ctx.fillStyle='#7ff'; ctx.fillRect(d.x, d.y, 10, 14);
+      // collision
+      if(d.y > 240 && d.x > gameState.vac.bucketX && d.x < gameState.vac.bucketX+60){
+        d.y = -40; d.x = Math.random()*380;
+        gameState.vac.score++;
+        if(gameState.vac.score >= 5){ cancelAnimationFrame(animId); enableAdapt(); }
+      }
+    }
+    // bucket
+    ctx.fillStyle='#0b6'; ctx.fillRect(gameState.vac.bucketX, 260, 60, 18);
+    animId = requestAnimationFrame(loop);
+  }
+  let animId = requestAnimationFrame(loop);
+  canvas.onmousemove = (e)=>{ gameState.vac.bucketX = Math.max(0, Math.min(360, e.offsetX-30)); };
 }
 
-function lose() {
-    clearInterval(gameLoop);
-    document.getElementById("loseMessage").style.display = "block";
+/* ---- game 8: Cell Membrane (defend toxins) ---- */
+function gameMembrane(){
+  gameState.mem = { shieldX:180, particles:[], blocked:0 };
+  for(let i=0;i<6;i++) gameState.mem.particles.push({x:Math.random()*400, y:-Math.random()*300, vx:0, vy:1.4 + Math.random()*1.2});
+  function loop(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#cfe'; ctx.fillText('Move shield to block toxins. Block 6 to win.',10,14);
+    // draw membrane shield
+    ctx.fillStyle='rgba(120,240,200,0.15)'; ctx.fillRect(gameState.mem.shieldX, 240, 80, 16);
+    for(const p of gameState.mem.particles){
+      p.y += p.vy;
+      ctx.beginPath(); ctx.fillStyle='rgba(255,110,100,0.9)'; ctx.arc(p.x,p.y,6,0,Math.PI*2); ctx.fill();
+      if(p.y > 250){
+        // check blocked
+        if(p.x > gameState.mem.shieldX && p.x < gameState.mem.shieldX + 80){
+          p.y = -40; p.x = Math.random()*400; gameState.mem.blocked++;
+          if(gameState.mem.blocked>=6){ cancelAnimationFrame(anim); enableAdapt(); }
+        } else {
+          // damage - we can reduce score or reset; keep simple
+          p.y = -40; p.x = Math.random()*400;
+        }
+      }
+    }
+    anim = requestAnimationFrame(loop);
+  }
+  let anim = requestAnimationFrame(loop);
+  canvas.onmousemove = (e)=>{ gameState.mem.shieldX = Math.max(0, Math.min(320, e.offsetX-40)); };
 }
+
+/* ---- game 9: Cytoskeleton (connect nodes) ---- */
+function gameCytoskel(){
+  // nodes move; player must click nodes in a sequence to "stiffen" the frame; simple sequence memory
+  gameState.cyto = { nodes:[], seq:[], progress:0 };
+  for(let i=0;i<6;i++){
+    gameState.cyto.nodes.push({x:40 + i*60, y:50 + (i%2)*50, r:10, locked:false});
+  }
+  // sequence: highlight nodes one by one, then player repeats
+  gameState.cyto.seq = [0,2,4,1,3]; // example pattern
+  let step = 0; let playerStep = 0;
+  // show sequence
+  let showI=0;
+  const seqInterval = setInterval(()=>{
+    drawCyto(showI);
+    showI++;
+    if(showI>gameState.cyto.seq.length){ clearInterval(seqInterval); drawCyto(-1); canvas.onclick = handleClick; }
+  },600);
+  function drawCyto(high){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#cfe'; ctx.fillText('Memorize the node sequence then click them in order to lock the frame.',10,14);
+    for(let i=0;i<gameState.cyto.nodes.length;i++){
+      const n = gameState.cyto.nodes[i];
+      ctx.beginPath();
+      ctx.fillStyle = (i===high)?'#ffd9d9' : (n.locked? '#8ef78a' : '#bfe');
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI*2); ctx.fill();
+    }
+  }
+  function handleClick(e){
+    for(let i=0;i<gameState.cyto.nodes.length;i++){
+      const n = gameState.cyto.nodes[i];
+      const dx = e.offsetX - n.x, dy = e.offsetY - n.y;
+      if(Math.sqrt(dx*dx+dy*dy) < n.r+6 && !n.locked){
+        // check sequence
+        if(i === gameState.cyto.seq[playerStep]){
+          n.locked=true; playerStep++;
+          if(playerStep===gameState.cyto.seq.length){ canvas.onclick=null; enableAdapt(); }
+        } else {
+          // fail - reset
+          for(const nn of gameState.cyto.nodes) nn.locked=false;
+          playerStep=0;
+        }
+        drawCyto(-1);
+      }
+    }
+  }
+}
+
+/* ---- game 10: Peroxisome (balance particles) ---- */
+function gamePerox(){
+  // maintain balance between reactive and detox particles by clicking the reactive ones
+  gameState.per = { reactive:[], detox:[], score:0 };
+  for(let i=0;i<8;i++){
+    gameState.per.reactive.push({x:10+Math.random()*400,y:10+Math.random()*150,r:10});
+    gameState.per.detox.push({x:10+Math.random()*400,y:10+Math.random()*150,r:8});
+  }
+  function loop(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle='#cfe'; ctx.fillText('Click reactive particles (red) to reduce oxidative stress. Reduce 8 to win.',10,14);
+    for(const p of gameState.per.reactive){
+      p.y += 0.2 + Math.random()*0.5;
+      ctx.beginPath(); ctx.fillStyle='rgba(255,110,110,0.9)'; ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+      if(p.y>200) p.y = -10;
+    }
+    for(const d of gameState.per.detox){
+      d.y += 0.1 + Math.random()*0.3;
+      ctx.beginPath(); ctx.fillStyle='rgba(120,240,200,0.8)'; ctx.arc(d.x,d.y,d.r,0,Math.PI*2); ctx.fill();
+      if(d.y>200) d.y = -10;
+    }
+    anim = requestAnimationFrame(loop);
+  }
+  let anim = requestAnimationFrame(loop);
+  canvas.onclick = (e)=>{
+    for(let i=gameState.per.reactive.length-1;i>=0;i--){
+      const p = gameState.per.reactive[i];
+      const dx=e.offsetX-p.x, dy=e.offsetY-p.y;
+      if(Math.sqrt(dx*dx+dy*dy) < p.r){
+        gameState.per.reactive.splice(i,1); gameState.per.score++;
+        if(gameState.per.score>=8){ cancelAnimationFrame(anim); enableAdapt(); }
+      }
+    }
+  };
+}
+
+/* ---- apply adaptation (after finishing game and clicking Adapt) ---- */
+function applyAdapt(){
+  if(!current) return;
+  // mark completed
+  current.played = true;
+  adaptation += current.boost;
+  if(adaptation > adaptationTarget) adaptation = adaptationTarget;
+  meterFill.style.width = adaptation + '%';
+  meterPercent.innerText = adaptation + '%';
+  missionLog.innerText += `\n${new Date().toLocaleTimeString()}: ${playerName||'Explorer'} adapted ${current.title} (+${current.boost}%).`;
+  // update UI
+  document.getElementById('btn-'+current.id).classList.add('done');
+  adaptBtn.disabled = true;
+  openBtn.disabled = true;
+  feedback.innerText = `${current.title} applied. Choose the next organelle.`;
+  // visual effect: tiny particle burst
+  burstEffect((Math.random()*80)+80, (Math.random()*140)+20);
+  // check final evolve
+  if(adaptation>=adaptationTarget) evolveCell();
+}
+
+/* ---- evolution animation ---- */
+function evolveCell(){
+  // dramatic visual in cell-visual area
+  cellVisual.innerHTML = '';
+  // create central glow
+  const glow = document.createElement('div'); glow.className='glow'; glow.style.width='260px'; glow.style.height='260px';
+  glow.style.left='calc(50% - 130px)'; glow.style.top='calc(50% - 130px)'; glow.style.background='radial-gradient(circle,#eafff5, rgba(140,240,200,0.6))'; cellVisual.appendChild(glow);
+  // particle burst
+  for(let i=0;i<60;i++){
+    const p=document.createElement('div'); p.className='particle';
+    const size=6 + Math.random()*10; p.style.width=size+'px'; p.style.height=size+'px';
+    p.style.left='50%'; p.style.top='50%'; p.style.background = (Math.random()>0.5)?'#bff':'#ffd9d9';
+    p.style.transition = `transform ${800+Math.random()*900}ms cubic-bezier(.2,.9,.1,1), opacity 900ms`;
+    cellVisual.appendChild(p);
+    setTimeout(()=>{ const a = Math.random()*Math.PI*2, r=60+Math.random()*160; p.style.transform = `translate(${Math.cos(a)*r}px, ${Math.sin(a)*r}px)`; p.style.opacity='0'; },20);
+  }
+  // final log
+  missionLog.innerText += `\n\n=== EVOLUTION COMPLETE ===\n${playerName||'Explorer'} fully adapted the Arctic Fox cell at ${new Date().toLocaleTimeString()} — cold resistance achieved.`;
+  // sparkle for each organelle done
+}
+
+/* ---- small visual helpers ---- */
+function burstEffect(x,y){
+  // x,y relative to cellVisual coordinates; create several small particles
+  for(let i=0;i<12;i++){
+    const p=document.createElement('div'); p.className='particle';
+    const size=4+Math.random()*8; p.style.width=size+'px'; p.style.height=size+'px';
+    p.style.left = (Math.random()*cellVisual.clientWidth)+'px';
+    p.style.top = (Math.random()*cellVisual.clientHeight)+'px';
+    p.style.background = (Math.random()>0.5)?'#8ef78a':'#b9f6ff';
+    p.style.transition = `transform ${400+Math.random()*700}ms ease, opacity 700ms`;
+    cellVisual.appendChild(p);
+    setTimeout(()=>{ p.style.transform = `translateY(-60px) scale(0.3)`; p.style.opacity='0'; }, 30 + Math.random()*400);
+    setTimeout(()=>{ p.remove(); }, 1300);
+  }
+}
+
+/* ---- helpers ---- */
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function resetAll(){ location.reload(); }
+
+/* ---- update list and allow finishing ---- */
+function updateUI(){
+  buildList();
+  // if all played -> final message handled in applyAdapt when adaptation reached 100
+}
+setInterval(updateUI,400);
+
 </script>
-
 </body>
 </html>
