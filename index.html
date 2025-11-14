@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Celliverse — Hub</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="page container">
+    <header class="topbar">
+      <h1 class="title">The Celliverse</h1>
+      <p class="subtitle">Cells — tiny universes. Pick your mission: Animal cell (Arctic Fox) or Plant cell (Venus Flytrap).</p>
+    </header>
+
+    <section class="welcome card">
+      <label for="playerName">Explorer codename</label>
+      <input id="playerName" placeholder="Type your codename..." />
+      <div class="row">
+        <a class="btn" id="toAnimal">Start: Arctic Fox (Animal Cell)</a>
+        <a class="btn alt" id="toPlant">Start: Venus Flytrap (Plant Cell)</a>
+      </div>
+      <p class="hint">Each mission contains 10 organelles with mini-games. Finish them to unlock the final adaptation transformation.</p>
+    </section>
+
+    <section class="features card">
+      <h3>What to expect</h3>
+      <ul>
+        <li>Interactive organelle mini-games with cute animations</li>
+        <li>Adaptation meters that change the cell visually</li>
+        <li>Two adaptation storylines: Arctic Fox & Venus Flytrap</li>
+        <li>Mission log & evolution finale</li>
+      </ul>
+    </section>
+
+    <footer class="card">
+      <small>Made for classroom projects. Host on GitHub Pages for best results.</small>
+    </footer>
+  </main>
+
+<script>
+  // quick client-side nav (so this single-file hub works on GitHub Pages)
+  document.getElementById('toAnimal').onclick = () => {
+    const name = document.getElementById('playerName').value.trim();
+    localStorage.setItem('celliverse_player', name || 'Explorer');
+    location.href = 'animal.html';
+  };
+  document.getElementById('toPlant').onclick = () => {
+    const name = document.getElementById('playerName').value.trim();
+    localStorage.setItem('celliverse_player', name || 'Explorer');
+    location.href = 'plant.html';
+  };
+</script>
+</body>
+</html>
