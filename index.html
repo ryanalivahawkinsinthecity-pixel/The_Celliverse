@@ -1,55 +1,64 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Celliverse — Hub</title>
-<link rel="stylesheet" href="style.css" />
+<style>
+  :root{
+    --bg:#0e1630; --card:#111827; --accent:#7ee7c2; --cute:#ffd6e0;
+    --glass: rgba(255,255,255,0.04);
+  }
+  body{ margin:0; font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue"; background: radial-gradient(circle at 10% 10%, #112, #071020 40%, #02030a 100%); color:#eef; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+  .wrap{ width:100%; max-width:980px; padding:28px; box-sizing:border-box;}
+  header{display:flex; align-items:center; gap:18px; margin-bottom:18px;}
+  .logo{width:68px;height:68px;border-radius:12px;background:linear-gradient(135deg,#8fe6ff, #a3ffcb); display:flex;align-items:center;justify-content:center;color:#012; font-weight:800; font-size:20px; box-shadow:0 6px 20px rgba(0,0,0,0.6)}
+  h1{margin:0;font-size:24px;}
+  p.lead{color:#cfe; margin:6px 0 18px;}
+  .cards{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); border-radius:12px; padding:18px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02), 0 8px 30px rgba(2,6,23,0.7)}
+  .nav-btn{display:inline-block;padding:10px 14px;border-radius:10px;background:var(--accent);color:#022; font-weight:700;text-decoration:none; margin-top:12px}
+  .small{font-size:13px;color:#aee;}
+  footer{ margin-top:18px; color:#9fb; font-size:13px;}
+  .muted{color:#6f9;}
+  .instructions{margin-top:10px;background:var(--glass); padding:12px;border-radius:8px;color:#cfe;font-size:14px;}
+</style>
 </head>
 <body>
-  <main class="page container">
-    <header class="topbar">
-      <h1 class="title">The Celliverse</h1>
-      <p class="subtitle">Cells — tiny universes. Pick your mission: Animal cell (Arctic Fox) or Plant cell (Venus Flytrap).</p>
+  <div class="wrap">
+    <header>
+      <div class="logo">CV</div>
+      <div>
+        <h1>Celliverse — Hub</h1>
+        <div class="small">A cute, scientific exploration of cells & adaptation — Arctic Fox (animal) and Venus Flytrap (plant)</div>
+      </div>
     </header>
 
-    <section class="welcome card">
-      <label for="playerName">Explorer codename</label>
-      <input id="playerName" placeholder="Type your codename..." />
-      <div class="row">
-        <a class="btn" id="toAnimal">Start: Arctic Fox (Animal Cell)</a>
-        <a class="btn alt" id="toPlant">Start: Venus Flytrap (Plant Cell)</a>
+    <p class="lead">Start a new mission: explore organelles, play each organelle's mini-game, and watch the cell adapt for its environment. Each organism has 10 organelles with unique interactions.</p>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Arctic Fox — Animal Cell</h3>
+        <div class="small">Adaptation focus: cold, fat storage, energy, insulation — complete organelle games to make the cell cold-resistant.</div>
+        <a class="nav-btn" href="arctic-fox.html">Launch Arctic Fox Mission</a>
+        <div class="instructions">
+          Enter codename on the mission page. Each organelle has a real mini-game and increases an adaptation meter. When the meter fills, see a mutation/evolution animation.
+        </div>
       </div>
-      <p class="hint">Each mission contains 10 organelles with mini-games. Finish them to unlock the final adaptation transformation.</p>
-    </section>
 
-    <section class="features card">
-      <h3>What to expect</h3>
-      <ul>
-        <li>Interactive organelle mini-games with cute animations</li>
-        <li>Adaptation meters that change the cell visually</li>
-        <li>Two adaptation storylines: Arctic Fox & Venus Flytrap</li>
-        <li>Mission log & evolution finale</li>
-      </ul>
-    </section>
+      <div class="card">
+        <h3>Venus Flytrap — Plant Cell</h3>
+        <div class="small">Adaptation focus: nutrient capture, photosynthesis efficiency, trap activation — complete organelle games to optimize the trap.</div>
+        <a class="nav-btn" href="venus-flytrap.html">Launch Venus Flytrap Mission</a>
+        <div class="instructions">
+          Perfect for classroom demos — copy files into a GitHub Pages repo to publish. All code is client-side; works offline in a browser.
+        </div>
+      </div>
+    </div>
 
-    <footer class="card">
-      <small>Made for classroom projects. Host on GitHub Pages for best results.</small>
+    <footer>
+      Tip: To host, push these three files to a GitHub repo and enable Pages from the repo settings. <span class="muted">Happy exploring!</span>
     </footer>
-  </main>
-
-<script>
-  // quick client-side nav (so this single-file hub works on GitHub Pages)
-  document.getElementById('toAnimal').onclick = () => {
-    const name = document.getElementById('playerName').value.trim();
-    localStorage.setItem('celliverse_player', name || 'Explorer');
-    location.href = 'animal.html';
-  };
-  document.getElementById('toPlant').onclick = () => {
-    const name = document.getElementById('playerName').value.trim();
-    localStorage.setItem('celliverse_player', name || 'Explorer');
-    location.href = 'plant.html';
-  };
-</script>
+  </div>
 </body>
 </html>
