@@ -1,33 +1,101 @@
 :root{
-  --bg-plant:#07120a; --panel-plant:#05120b; --leaf:#bfffcf; --accent-plant:#b9ff8a;
-  --bg-fox:#07121b; --panel-fox:#081826; --accent-fox:#8fe6ff; --cute:#ffd9ec; --ok:#8ef78a;
+  --bg:#061018;
+  --panel:#071827;
   --glass: rgba(255,255,255,0.03);
+  --accent:#4be3c8;
+  --accent-2:#9a7bff;
+  --muted:#9fb0c7;
+  --good:#8ef0a7;
+  --bad:#ff7b7b;
+  --mono: "Segoe UI Mono", "Courier New", monospace;
 }
 
+*{box-sizing:border-box}
 body{
   margin:0;
-  font-family:Inter,system-ui,Segoe UI,Roboto;
-  background:linear-gradient(180deg,#031415,#02100a 80%);
-  color:#eef;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background: radial-gradient(800px 400px at 10% 10%, rgba(154,123,255,0.035), transparent),
+              radial-gradient(600px 300px at 90% 80%, rgba(75,227,200,0.03), transparent),
+              var(--bg);
+  color: #e6f6f2;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
 }
 
-.wrap{max-width:1100px;margin:18px auto;padding:18px;}
-header{display:flex;gap:14px;align-items:center}
-.logo{
-  width:64px;height:64px;border-radius:12px;
-  display:flex;align-items:center;justify-content:center;font-weight:800;
+/* topbar */
+.topbar{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  padding:14px 20px;
+  background: linear-gradient(90deg, rgba(10,18,22,0.6), rgba(6,10,18,0.6));
+  border-bottom:1px solid rgba(255,255,255,0.03);
 }
-h1{margin:0}
-.row{display:flex;gap:18px;flex-wrap:wrap}
-.panel{padding:12px;border-radius:12px;background:rgba(255,255,255,0.02)}
-.left{flex:1 1 360px} .right{flex:1 1 620px}
-input[type=text]{width:100%;padding:10px;border-radius:8px;border:none;background:rgba(255,255,255,0.02); color:#eef}
-.org-list{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
-.org-btn{padding:8px 10px;border-radius:8px;background:linear-gradient(180deg, rgba(255,255,255,0.02), transparent); cursor:pointer;border:1px solid rgba(255,255,255,0.03); color:#dff}
-canvas{display:block;margin:12px auto;background:transparent;border-radius:8px}
-.meter{height:18px;background:rgba(255,255,255,0.04);border-radius:10px;overflow:hidden}
-.meter-fill{height:100%;width:0%;background:linear-gradient(90deg,#c6ffb3,#7ef78a);transition:width 600ms ease}
-.game-area{margin-top:12px;padding:12px;border-radius:10px;background:rgba(255,255,255,0.01)}
-.hint{font-size:13px;color:#cfe}
-#cell-visual{width:100%;height:180px;border-radius:12px;position:relative;overflow:hidden}
-.particle{position:absolute;border-radius:50%;}
+.brand{font-weight:700; color:var(--accent); font-size:18px}
+.menu{margin-left:auto; display:flex; gap:8px}
+.menu button{
+  background:transparent; border:1px solid rgba(255,255,255,0.04);
+  padding:8px 12px; color:var(--muted); border-radius:8px; cursor:pointer;
+}
+.menu button.active{ color:#fff; border-color: rgba(154,123,255,0.18); box-shadow: 0 6px 30px rgba(154,123,255,0.06) }
+
+/* main layout */
+.app{
+  padding:22px;
+  max-width:1100px;
+  margin:18px auto;
+  width:calc(100% - 48px);
+  flex:1;
+}
+
+/* panels */
+.panel{
+  background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border:1px solid rgba(255,255,255,0.03);
+  padding:16px;
+  border-radius:12px;
+  margin-bottom:16px;
+}
+
+/* hub */
+.hub-grid{display:grid; grid-template-columns: 1fr 320px; gap:14px}
+@media (max-width:900px){ .hub-grid{grid-template-columns:1fr} }
+
+.missions-list{display:grid; gap:10px}
+.mission-card{display:flex; justify-content:space-between; align-items:center; padding:12px; border-radius:10px; background:var(--panel); border:1px solid rgba(255,255,255,0.02)}
+.mission-card .left {display:flex; gap:10px; align-items:center}
+.mission-icon{width:48px;height:48px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent-2)); display:flex; align-items:center; justify-content:center; font-weight:800; color:#041018}
+.mission-meta{font-size:13px}
+.mission-meta strong{display:block;color:var(--good); font-size:14px}
+
+/* mission area */
+.mission-area{min-height:360px}
+.controls{display:flex; gap:8px; margin-top:12px}
+
+/* flashcards / mini-game styling */
+.flashcard{height:220px; border-radius:10px; display:flex; align-items:center; justify-content:center; text-align:center; padding:12px}
+.card-front{background:linear-gradient(180deg, rgba(75,227,200,0.06), rgba(154,123,255,0.03)); color:#012426}
+.card-back{background:linear-gradient(180deg, rgba(154,123,255,0.06), rgba(75,227,200,0.03)); color:#061018}
+
+/* draggable pool */
+.pool{display:flex; flex-direction:column; gap:8px; max-height:320px; overflow:auto; padding:8px}
+.pool .pool-item{padding:8px; border-radius:8px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.02); cursor:grab}
+
+/* canvas */
+.cell-canvas{width:100%; min-height:300px; border-radius:12px; border:2px dashed rgba(255,255,255,0.03); padding:10px; background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent); position:relative}
+
+/* little UI */
+.small{font-size:13px; color:var(--muted)}
+.badge{background:rgba(255,255,255,0.03); padding:6px 8px; border-radius:6px; font-weight:600}
+
+/* final simulation area */
+.sim-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+@media (max-width:900px){ .sim-grid{grid-template-columns:1fr} }
+
+/* footer */
+.footer{padding:12px 20px; border-top:1px solid rgba(255,255,255,0.03); display:flex; justify-content:space-between; font-size:13px; color:var(--muted)}
+
+/* neat buttons */
+.btn{background:linear-gradient(90deg,var(--accent),var(--accent-2)); border:none; color:#041018; padding:8px 12px; border-radius:8px; cursor:pointer}
+.btn-ghost{background:transparent; border:1px solid rgba(255,255,255,0.04); color:var(--muted)}
