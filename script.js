@@ -714,76 +714,71 @@ function renderMembraneMission(m){
   };
 }
 
-/* 8) Cytoplasm — diffusion (even distribution) */
+/* Cytoplasm — Clicker Counter Game (Space Theme) */
 function renderCytoplasmMission(m){
   app.innerHTML = `
-    <section class="panel mission-area">
+    <section class="panel mission-area" style="background:radial-gradient(circle at center, #0b1d2c, #071020); color:white;">
       <h2>${m.title}</h2>
       <p class="small">${m.hint}</p>
       <div style="margin-top:12px">
-        <div id="cytoGrid" class="panel" style="display:grid; grid-template-columns:repeat(8,1fr); gap:6px; padding:8px; min-height:220px"></div>
-        <div style="margin-top:8px" class="small">Click a cell to add molecule. Goal: evenly spread molecules across the grid using simple diffusion steps.</div>
-        <div style="margin-top:8px"><button class="btn" id="diffuse">Diffuse Step</button><button class="btn-ghost" onclick="routeTo('missions')">Exit</button></div>
+        <div id="cytoGrid" class="panel" style="
+          display:grid; 
+          grid-template-columns:repeat(4,1fr); 
+          gap:8px; 
+          padding:8px; 
+          min-height:220px;
+          background:#0d1f30;
+          border-radius:12px;
+        "></div>
+        <div style="margin-top:12px">
+          <button class="btn" id="checkScore">Check Score</button>
+          <button class="btn-ghost" onclick="routeTo('missions')">Exit</button>
+        </div>
       </div>
     </section>
   `;
+
   const grid = document.getElementById('cytoGrid');
-  const size=8*3; // 8 columns x 3 rows
-  for(let i=0;i<size;i++){
-    const c = document.createElement('div');
-    c.className='pool-item';
-    c.style.height='40px';
-    c.textContent='0';
-    c.dataset.count = '0';
-    c.addEventListener('click', ()=> {
-      c.dataset.count = String(Number(c.dataset.count)+1);
-      c.textContent = c.dataset.count;
+  const rows = 3;
+  const cols = 4;
+  let totalMolecules = 0;
+
+  for(let i=0;i<rows*cols;i++){
+    const cell = document.createElement('div');
+    cell.className = 'pool-item';
+    cell.style.height = '60px';
+    cell.style.display = 'flex';
+    cell.style.alignItems = 'center';
+    cell.style.justifyContent = 'center';
+    cell.style.fontWeight = 'bold';
+    cell.style.cursor = 'pointer';
+    cell.style.borderRadius = '8px';
+    cell.style.background = 'radial-gradient(circle at center, #1c3a5a, #071020)';
+    cell.style.transition = 'all 0.2s ease';
+    cell.dataset.count = '0';
+    cell.textContent = '0';
+
+    // Hover effect
+    cell.addEventListener('mouseenter', ()=> cell.style.boxShadow = '0 0 12px #6fffcf');
+    cell.addEventListener('mouseleave', ()=> cell.style.boxShadow = 'none');
+
+    // Click effect
+    cell.addEventListener('click', ()=>{
+      cell.dataset.count = String(Number(cell.dataset.count)+1);
+      cell.textContent = cell.dataset.count;
+      totalMolecules += 1;
+      cell.style.background = 'radial-gradient(circle at center, #6fffcf, #1c3a5a)'; // flash on click
+      setTimeout(()=>{ cell.style.background = 'radial-gradient(circle at center, #1c3a5a, #071020)'; }, 200);
     });
-    grid.appendChild(c);
+
+    grid.appendChild(cell);
   }
-  document.getElementById('diffuse').onclick = ()=>{
-    // simple diffusion: each cell gives half of its molecules rounded down to random neighbor(s)
-    const cells = Array.from(grid.children);
-    const counts = cells.map(c=>Number(c.dataset.count));
-    const newCounts = new Array(counts.length).fill(0);
-    for(let i=0;i<counts.length;i++){
-      const amount = counts[i];
-      const stay = Math.floor(amount/2);
-      const give = amount - stay;
-      newCounts[i] += stay;
-      // distribute give across up to 2 neighbors: left/right if exist
-      const neighbors = [];
-      if(i % 8 !== 0) neighbors.push(i-1);
-      if((i % 8) !== 7) neighbors.push(i+1);
-      if(neighbors.length === 0) { newCounts[i]+=give; continue; }
-      // split give among neighbors
-      for(let k=0;k<give;k++){
-        const idx = neighbors[Math.floor(Math.random()*neighbors.length)];
-        newCounts[idx] += 1;
-      }
-    }
-    // write back
-    cells.forEach((c,i)=>{ c.dataset.count = String(newCounts[i]); c.textContent = c.dataset.count; });
-    // check evenness score (lower stdev is better)
-    const vals = newCounts;
-    const avg = vals.reduce((a,b)=>a+b,0)/vals.length;
-    const variance = vals.reduce((a,b)=>a+(b-avg)*(b-avg),0)/vals.length;
-    const stdev = Math.sqrt(variance);
-    // map stdev to score (0 stdev => 100, big stdev => lower)
-    const score = Math.max(0, Math.round(100 - stdev*20));
-    // allow finish when average molecules >=1 (i.e., user seeded)
-    const totalMoles = vals.reduce((a,b)=>a+b,0);
-    if(totalMoles > 0 && stdev < 1.5){
-      finishMission('cytoplasm', score);
-      alert(`Cytoplasm mission complete — score: ${score}`);
-    } else if(totalMoles > 30){
-      // if too many but uneven, still finish with lower score
-      finishMission('cytoplasm', score);
-      alert(`Cytoplasm mission auto-complete — score: ${score}`);
-    } else {
-      // allow more diffusion steps
-      alert(`Diffusion step applied. Current spread stdev: ${stdev.toFixed(2)}. Keep diffusing or seed more molecules.`);
-    }
+
+  // Check score button
+  document.getElementById('checkScore').onclick = ()=>{
+    let score = Math.min(100, totalMolecules*10); // simple scoring: 10 points per click, max 100
+    finishMission('cytoplasm', score);
+    alert(`Mission complete! Score: ${score}`);
   };
 }
 
