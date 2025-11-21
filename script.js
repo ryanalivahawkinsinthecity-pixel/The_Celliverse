@@ -779,6 +779,7 @@ function renderCytoplasmMission(m){
     let score = Math.min(100, totalMolecules*10); // simple scoring: 10 points per click, max 100
     finishMission('cytoplasm', score);
     alert(`Mission complete! Score: ${score}`);
+     renderCytoplasmMission({title: "Cytoplasm", hint: "Click to add molecules!"});
   };
 }
 
