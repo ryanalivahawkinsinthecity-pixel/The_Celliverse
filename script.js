@@ -444,81 +444,153 @@ function renderRibosomesMission(m){
     alert(`Ribosomes mission complete — matched ${correct}/${target.length}, score: ${final}`);
   };
 }
-
-/* 4) Endoplasmic Reticulum — simple route/connect puzzle */
+/* 4) Endoplasmic Reticulum — Drag-the-Protein Maze */
 function renderERMission(m){
   app.innerHTML = `
     <section class="panel mission-area">
       <h2>${m.title}</h2>
       <p class="small">${m.hint}</p>
-      <div style="display:flex; gap:12px; margin-top:12px">
-        <div style="flex:1">
-          <div id="erGrid" class="panel" style="min-height:260px; display:grid; grid-template-columns:repeat(6,1fr); gap:6px; align-items:center; justify-items:center"></div>
-          <div class="small" style="margin-top:8px">Connect the Protein (P) from left to right across the ER channels. Click tiles to toggle path.</div>
-        </div>
-        <aside style="width:240px" class="panel">
-          <h4>Controls</h4>
-          <button class="btn" id="solveER">Submit</button>
-          <button class="btn-ghost" onclick="routeTo('missions')">Exit</button>
-        </aside>
+      <div id="erGame" 
+           style="position:relative; width:100%; height:300px; background:var(--panel); overflow:hidden; border:2px solid var(--accent); border-radius:8px;">
       </div>
+
+      <div style="margin-top:12px; display:flex; gap:12px">
+        <button class="btn" id="erStart">Start ER Mission</button>
+        <button class="btn-ghost" onclick="routeTo('missions')">Exit</button>
+      </div>
+
+      <p class="small" style="margin-top:6px">Drag all proteins through the shifting ER channels. Avoid touching any wall for 8 seconds.</p>
     </section>
   `;
-  const grid = document.getElementById('erGrid');
-  const rows = 4, cols = 6;
-  // create tiles
-  for(let r=0;r<rows;r++){
-    for(let c=0;c<cols;c++){
-      const t = document.createElement('div');
-      t.className='pool-item';
-      t.style.width='100%';
-      t.style.textAlign='center';
-      t.style.cursor='pointer';
-      t.dataset.on = Math.random() > 0.6 ? '1' : '0'; // some prefilled
-      updateTile(t);
-      t.addEventListener('click', ()=> { t.dataset.on = t.dataset.on==='1' ? '0' : '1'; updateTile(t); });
-      grid.appendChild(t);
+
+  const game = document.getElementById("erGame");
+  let proteins = [];
+  let walls = [];
+  let running = false;
+  let timer = 8;
+  let timerInterval;
+
+  // Create proteins
+  function spawnProteins(){
+    for(let i=0;i<3;i++){
+      const p = document.createElement("div");
+      p.className = "er-protein";
+      p.style.position = "absolute";
+      p.style.width = "26px";
+      p.style.height = "26px";
+      p.style.borderRadius = "50%";
+      p.style.background = "var(--accent)";
+      p.style.left = "20px";
+      p.style.top = (40 + i*60) + "px";
+      p.style.cursor = "grab";
+      game.appendChild(p);
+
+      makeDraggable(p);
+      proteins.push(p);
     }
-  }
-  function updateTile(t){
-    t.style.background = t.dataset.on==='1' ? 'linear-gradient(90deg,var(--accent),var(--accent-2))' : 'transparent';
-    t.textContent = t.dataset.on==='1' ? '═' : '';
   }
 
-  document.getElementById('solveER').onclick = ()=>{
-    // naive check: see if there's a path from leftmost column to rightmost using "on" tiles (simple flood fill)
-    const tiles = Array.from(grid.children);
-    const matrix = [];
-    for(let r=0;r<rows;r++){
-      matrix[r] = [];
-      for(let c=0;c<cols;c++){
-        const t = tiles[r*cols + c];
-        matrix[r][c] = t.dataset.on === '1' ? 1 : 0;
+  // Create ER walls (scrolling)
+  function spawnWalls(){
+    for(let i=0;i<5;i++){
+      const w = document.createElement("div");
+      w.className = "er-wall";
+      w.style.position = "absolute";
+      w.style.width = "100%";
+      w.style.height = "40px";
+      w.style.background = "rgba(0,0,0,0.5)";
+      w.style.top = (i*60)+"px";
+      w.style.left = (Math.random()*-100)+"px";
+      w.speed = 1 + Math.random()*1.5;
+      game.appendChild(w);
+      walls.push(w);
+    }
+  }
+
+  // Drag function
+  function makeDraggable(el){
+    let isDragging = false, offsetX=0, offsetY=0;
+
+    el.addEventListener("pointerdown",(e)=>{
+      isDragging=true;
+      el.setPointerCapture(e.pointerId);
+      offsetX = e.clientX - el.offsetLeft;
+      offsetY = e.clientY - el.offsetTop;
+      el.style.cursor="grabbing";
+    });
+
+    el.addEventListener("pointermove",(e)=>{
+      if(!isDragging) return;
+      const x = e.clientX - offsetX;
+      const y = e.clientY - offsetY;
+      el.style.left = x+"px";
+      el.style.top = y+"px";
+    });
+
+    el.addEventListener("pointerup",(e)=>{
+      isDragging=false;
+      el.style.cursor="grab";
+    });
+  }
+
+  function startGame(){
+    if(running) return;
+    running = true;
+
+    game.innerHTML="";
+    proteins=[];
+    walls=[];
+    timer = 8;
+
+    spawnProteins();
+    spawnWalls();
+
+    timerInterval = setInterval(()=>{
+      timer--;
+      if(timer <= 0){
+        clearInterval(timerInterval);
+        finish(true);
       }
-    }
-    // BFS from any 'on' in left column to right column
-    const visited = Array(rows).fill(0).map(()=>Array(cols).fill(false));
-    const q=[];
-    for(let r=0;r<rows;r++){
-      if(matrix[r][0]===1){ q.push([r,0]); visited[r][0]=true; }
-    }
-    const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
-    let reached=false;
-    while(q.length){
-      const [r,c] = q.shift();
-      if(c===cols-1){ reached=true; break; }
-      for(const [dr,dc] of dirs){
-        const nr=r+dr, nc=c+dc;
-        if(nr>=0 && nr<rows && nc>=0 && nc<cols && !visited[nr][nc] && matrix[nr][nc]===1){
-          visited[nr][nc]=true; q.push([nr,nc]);
+    },1000);
+
+    requestAnimationFrame(loop);
+  }
+
+  function loop(){
+    if(!running) return;
+
+    // move walls
+    walls.forEach(w=>{
+      w.style.left = (parseFloat(w.style.left) + w.speed) + "px";
+      if(parseFloat(w.style.left) > 400){
+        w.style.left = (Math.random()*-200)+"px";
+      }
+    });
+
+    // collision detection
+    for(const p of proteins){
+      const pr = p.getBoundingClientRect();
+      for(const w of walls){
+        const wr = w.getBoundingClientRect();
+        if(!(pr.right < wr.left || pr.left > wr.right || pr.bottom < wr.top || pr.top > wr.bottom)){
+          finish(false);
+          return;
         }
       }
     }
-    finishMission('er', reached ? 100 : 0);
-    alert(`ER mission ${reached ? 'succeeded' : 'failed'}. Score: ${reached ? 100 : 0}`);
-  };
-}
 
+    requestAnimationFrame(loop);
+  }
+
+  function finish(win){
+    running=false;
+    clearInterval(timerInterval);
+    finishMission("er", win ? 100 : 0);
+    alert(win ? "ER Mission Success! (Protein delivered)" : "ER Mission Failed (Protein hit wall)");
+  }
+
+  document.getElementById("erStart").onclick = startGame;
+}
 /* 5) Golgi — sort packages into destinations (drag-drop) */
 function renderGolgiMission(m){
   app.innerHTML = `
