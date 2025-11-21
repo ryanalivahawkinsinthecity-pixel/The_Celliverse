@@ -444,152 +444,90 @@ function renderRibosomesMission(m){
     alert(`Ribosomes mission complete — matched ${correct}/${target.length}, score: ${final}`);
   };
 }
-/* 4) Endoplasmic Reticulum — Drag-the-Protein Maze */
+/* 4) Endoplasmic Reticulum — Sorting Game (Super Simple) */
 function renderERMission(m){
   app.innerHTML = `
     <section class="panel mission-area">
       <h2>${m.title}</h2>
       <p class="small">${m.hint}</p>
-      <div id="erGame" 
-           style="position:relative; width:100%; height:300px; background:var(--panel); overflow:hidden; border:2px solid var(--accent); border-radius:8px;">
+
+      <div id="erGame" class="panel" 
+           style="width:100%; min-height:200px; display:flex; flex-direction:column;
+                  align-items:center; justify-content:center; gap:20px;">
+        <h3 id="erItem">Press Start</h3>
+        <p class="small">Choose the correct ER for this item.</p>
       </div>
 
-      <div style="margin-top:12px; display:flex; gap:12px">
-        <button class="btn" id="erStart">Start ER Mission</button>
+      <div style="display:flex; gap:12px; margin-top:12px">
+        <button class="btn" id="smoothBtn">Smooth ER</button>
+        <button class="btn" id="roughBtn">Rough ER</button>
+        <button class="btn-ghost" id="erStart">Start</button>
         <button class="btn-ghost" onclick="routeTo('missions')">Exit</button>
       </div>
 
-      <p class="small" style="margin-top:6px">Drag all proteins through the shifting ER channels. Avoid touching any wall for 8 seconds.</p>
+      <p class="small" style="margin-top:6px">
+        Lipids → Smooth ER • Proteins → Rough ER
+      </p>
     </section>
   `;
 
-  const game = document.getElementById("erGame");
-  let proteins = [];
-  let walls = [];
+  const erItem = document.getElementById("erItem");
+
+  const items = [
+    { name: "Protein", correct: "rough" },
+    { name: "Lipid", correct: "smooth" },
+  ];
+
+  let current = null;
+  let score = 0;
+  let rounds = 0;
   let running = false;
-  let timer = 8;
-  let timerInterval;
-
-  // Create proteins
-  function spawnProteins(){
-    for(let i=0;i<3;i++){
-      const p = document.createElement("div");
-      p.className = "er-protein";
-      p.style.position = "absolute";
-      p.style.width = "26px";
-      p.style.height = "26px";
-      p.style.borderRadius = "50%";
-      p.style.background = "var(--accent)";
-      p.style.left = "20px";
-      p.style.top = (40 + i*60) + "px";
-      p.style.cursor = "grab";
-      game.appendChild(p);
-
-      makeDraggable(p);
-      proteins.push(p);
-    }
-  }
-
-  // Create ER walls (scrolling)
-  function spawnWalls(){
-    for(let i=0;i<5;i++){
-      const w = document.createElement("div");
-      w.className = "er-wall";
-      w.style.position = "absolute";
-      w.style.width = "100%";
-      w.style.height = "40px";
-      w.style.background = "rgba(0,0,0,0.5)";
-      w.style.top = (i*60)+"px";
-      w.style.left = (Math.random()*-100)+"px";
-      w.speed = 1 + Math.random()*1.5;
-      game.appendChild(w);
-      walls.push(w);
-    }
-  }
-
-  // Drag function
-  function makeDraggable(el){
-    let isDragging = false, offsetX=0, offsetY=0;
-
-    el.addEventListener("pointerdown",(e)=>{
-      isDragging=true;
-      el.setPointerCapture(e.pointerId);
-      offsetX = e.clientX - el.offsetLeft;
-      offsetY = e.clientY - el.offsetTop;
-      el.style.cursor="grabbing";
-    });
-
-    el.addEventListener("pointermove",(e)=>{
-      if(!isDragging) return;
-      const x = e.clientX - offsetX;
-      const y = e.clientY - offsetY;
-      el.style.left = x+"px";
-      el.style.top = y+"px";
-    });
-
-    el.addEventListener("pointerup",(e)=>{
-      isDragging=false;
-      el.style.cursor="grab";
-    });
-  }
 
   function startGame(){
-    if(running) return;
+    score = 0;
+    rounds = 0;
     running = true;
-
-    game.innerHTML="";
-    proteins=[];
-    walls=[];
-    timer = 8;
-
-    spawnProteins();
-    spawnWalls();
-
-    timerInterval = setInterval(()=>{
-      timer--;
-      if(timer <= 0){
-        clearInterval(timerInterval);
-        finish(true);
-      }
-    },1000);
-
-    requestAnimationFrame(loop);
+    nextItem();
   }
 
-  function loop(){
-    if(!running) return;
-
-    // move walls
-    walls.forEach(w=>{
-      w.style.left = (parseFloat(w.style.left) + w.speed) + "px";
-      if(parseFloat(w.style.left) > 400){
-        w.style.left = (Math.random()*-200)+"px";
-      }
-    });
-
-    // collision detection
-    for(const p of proteins){
-      const pr = p.getBoundingClientRect();
-      for(const w of walls){
-        const wr = w.getBoundingClientRect();
-        if(!(pr.right < wr.left || pr.left > wr.right || pr.bottom < wr.top || pr.top > wr.bottom)){
-          finish(false);
-          return;
-        }
-      }
+  function nextItem(){
+    if(rounds >= 5){
+      finish(true);
+      return;
     }
 
-    requestAnimationFrame(loop);
+    current = items[Math.floor(Math.random()*items.length)];
+    erItem.textContent = current.name;
+    rounds++;
+  }
+
+  function choose(type){
+    if(!running) return;
+
+    if(type === current.correct){
+      score++;
+      nextItem();
+    } else {
+      finish(false);
+    }
   }
 
   function finish(win){
-    running=false;
-    clearInterval(timerInterval);
+    running = false;
     finishMission("er", win ? 100 : 0);
-    alert(win ? "ER Mission Success! (Protein delivered)" : "ER Mission Failed (Protein hit wall)");
+
+    if(win){
+      alert("Mission Complete! Great sorting!");
+    } else {
+      alert("Incorrect! Mission Failed.");
+    }
+
+    erItem.textContent = "Press Start";
   }
 
   document.getElementById("erStart").onclick = startGame;
+  document.getElementById("smoothBtn").onclick = ()=>choose("smooth");
+  document.getElementById("roughBtn").onclick = ()=>choose("rough");
 }
 /* 5) Golgi — sort packages into destinations (drag-drop) */
 function renderGolgiMission(m){
